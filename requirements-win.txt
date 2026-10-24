@@ -1,0 +1,24 @@
+# Windows build: PyTorch on CPU. Versions from the baidu/Unlimited-OCR model card, pinned.
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.10.0
+torchvision==0.25.0
+transformers==4.57.1
+huggingface-hub==0.36.2
+einops==0.8.2
+addict==2.4.0
+easydict==1.13
+matplotlib==3.10.8
+requests
+tqdm
+# PyMuPDF 1.x: 2.x hard-requires pymupdf-layout, which is PolyForm Noncommercial.
+pymupdf==1.28.2
+pymupdf4llm==0.3.4
+tabulate==0.10.0
+pillow==12.3.0
+pillow-heif==1.8.1
+pywebview==6.2.1
+# Office / text formats (no OCR needed)
+mammoth==1.13.0
+markdownify==1.2.3
+python-pptx==1.0.2
+openpyxl==3.1.5

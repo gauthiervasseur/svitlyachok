@@ -1,0 +1,18 @@
+# Apple Silicon build: MLX engine. Pinned to the versions tested.
+mlx==0.32.4
+mlx-metal==0.32.4
+mlx-vlm==0.7.10
+transformers==5.20.2
+huggingface-hub==2.3.0
+# PyMuPDF 1.x: 2.x hard-requires pymupdf-layout, which is PolyForm Noncommercial.
+pymupdf==1.28.2
+pymupdf4llm==0.3.4
+tabulate==0.10.0
+pillow==12.3.0
+pillow-heif==1.8.1
+pywebview==6.2.1
+# Office / text formats (no OCR needed)
+mammoth==1.13.0
+markdownify==1.2.3
+python-pptx==1.0.2
+openpyxl==3.1.5

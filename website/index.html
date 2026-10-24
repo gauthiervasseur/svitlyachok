@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Світлячок — documents to Markdown</title>
+  <meta name="description" content="Світлячок (Svitlyachok) turns PDFs, scans, photos and Office files into Markdown, on your own computer.">
+  <link rel="icon" href="img/favicon.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="sky" aria-hidden="true"></div>
+  <div class="crt" aria-hidden="true"></div>
+
+  <header class="hero">
+    <img class="hero-icon" src="img/icon.png" alt="" width="128" height="128">
+    <h1 class="title">СВІТЛЯЧОК</h1>
+    <p class="pronounce">SVITLYACHOK · “FIREFLY”</p>
+    <p class="tagline">DROP DOCUMENTS <span class="arrow">▶</span> GET MARKDOWN</p>
+    <p class="lede">Turns PDFs, scans, photos, Word, Excel and PowerPoint files into clean Markdown, right on your computer.</p>
+
+    <div class="downloads" id="downloads">
+      <a class="cart" id="dl-mac" data-os="mac" href="#">
+        <span class="cart-label">PRESS START</span>
+        <span class="cart-title">MAC</span>
+        <span class="cart-meta">Apple Silicon · macOS 14+</span>
+        <span class="cart-size" data-asset="Svitlyachok-macOS.dmg">.dmg</span>
+      </a>
+      <a class="cart" id="dl-win" data-os="win" href="#">
+        <span class="cart-label">PRESS START</span>
+        <span class="cart-title">WINDOWS</span>
+        <span class="cart-meta">Windows 10/11 · 64-bit</span>
+        <span class="cart-size" data-asset="Svitlyachok-Windows-Setup.exe">.exe installer</span>
+      </a>
+    </div>
+    <p class="release" id="release">LATEST RELEASE</p>
+  </header>
+
+  <main>
+    <section class="screen" aria-label="Screenshot">
+      <div class="bezel">
+        <img src="img/app-screenshot.jpg" alt="Світлячок window: a drop zone above a high-score table listing converted files with page counts, mode, time and status" width="1456" height="815" loading="lazy">
+      </div>
+    </section>
+
+    <section aria-labelledby="powerups">
+      <h2 id="powerups"><span class="tag">01</span> POWER-UPS</h2>
+      <div class="grid">
+        <article class="card">
+          <h3>DRAG &amp; DROP</h3>
+          <p>Drop several files, or whole folders, at once. PDF, scans, photos (incl. iPhone HEIC), Word, Excel, PowerPoint, text, CSV, HTML, JSON.</p>
+        </article>
+        <article class="card">
+          <h3>INSTANT FOR DIGITAL FILES</h3>
+          <p>PDFs exported from Word and the like, plus Office files, are read directly. A 20-page report takes under a second.</p>
+        </article>
+        <article class="card">
+          <h3>OCR FOR SCANS</h3>
+          <p>Scanned pages and photos are read by Baidu's open Unlimited-OCR model: headings, lists, tables, formulas and figures.</p>
+        </article>
+        <article class="card">
+          <h3>SAVE AS MARKDOWN</h3>
+          <p>Save one file or everything at once. Figures are saved in an <code>images/</code> folder next to the <code>.md</code>.</p>
+        </article>
+        <article class="card">
+          <h3>TIME ON THE CLOCK</h3>
+          <p>Every file shows its processing time, page count and how it was read (TEXT, OCR or MIX), plus session totals.</p>
+        </article>
+        <article class="card">
+          <h3>PRIVATE BY DESIGN</h3>
+          <p>Your documents never leave your computer. The only download is the OCR model itself, once.</p>
+        </article>
+      </div>
+    </section>
+
+    <section aria-labelledby="howto">
+      <h2 id="howto"><span class="tag">02</span> HOW TO PLAY</h2>
+      <ol class="steps">
+        <li><span class="step">1</span><div><h3>DOWNLOAD &amp; INSTALL</h3>
+          <p><b>Mac:</b> open the <code>.dmg</code> and drag <b>Світлячок</b> into Applications.<br>
+          <b>Windows:</b> run <code>Svitlyachok-Windows-Setup.exe</code>. No administrator rights needed.</p></div></li>
+        <li><span class="step">2</span><div><h3>FIRST LAUNCH</h3>
+          <p>The app isn't signed by Apple or Microsoft yet, so the first launch needs one extra click.</p>
+          <div class="tabs">
+            <details open><summary>MAC</summary>
+              <p>Open Світлячок. When macOS says it can't verify the app, click <b>Done</b>, then go to <b>System Settings → Privacy &amp; Security</b>, scroll down and click <b>Open Anyway</b>. You only do this once.</p></details>
+            <details><summary>WINDOWS</summary>
+              <p>If you see “Windows protected your PC”, click <b>More info</b>, then <b>Run anyway</b>. You only do this once.</p></details>
+          </div></div></li>
+        <li><span class="step">3</span><div><h3>DROP FILES</h3>
+          <p>Drop files on the window or click <b>INSERT DOCUMENTS</b>. The first scanned page downloads the OCR model (~6 GB, once), with a progress bar. Then click <b>SAVE</b> or <b>SAVE ALL</b>.</p></div></li>
+      </ol>
+    </section>
+
+    <section aria-labelledby="speed">
+      <h2 id="speed"><span class="tag">03</span> STAGE SELECT</h2>
+      <div class="table-wrap">
+        <table class="speed">
+          <thead><tr><th scope="col">FILE</th><th scope="col">MAC (APPLE SILICON)</th><th scope="col">WINDOWS</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Digital PDF, Office, text</th><td class="good">&lt; 1 s</td><td class="good">&lt; 1 s</td></tr>
+            <tr><th scope="row">Scanned page or photo</th><td class="good">~5 s per page</td><td class="slow">minutes per page</td></tr>
+            <tr><th scope="row">OCR engine</th><td>MLX on the Mac's GPU</td><td>PyTorch on the CPU</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">Measured on an M4 Pro. Windows has no GPU engine in this build, so scans are slow there; digital files are just as fast.</p>
+    </section>
+
+    <section aria-labelledby="faq">
+      <h2 id="faq"><span class="tag">04</span> FAQ</h2>
+      <div class="faq">
+        <details><summary>Are my documents uploaded anywhere?</summary>
+          <p>No. Everything runs on your computer. The app goes online only to download the OCR model the first time a page needs it (from Hugging Face).</p></details>
+        <details><summary>Which files work?</summary>
+          <p>PDF, PNG, JPG, HEIC, TIFF (multi-page), WebP, BMP, GIF, EPUB, XPS, DOCX, PPTX, XLSX, TXT, MD, CSV, TSV, HTML, JSON, XML, YAML. Old <code>.doc/.xls/.ppt</code> files need LibreOffice installed; otherwise save them as PDF or the newer format first.</p></details>
+        <details><summary>My PDF has formulas or a table without lines, and it came out flat.</summary>
+          <p>Digital PDFs are read from their text layer for speed. Tick <b>ALWAYS OCR</b> at the bottom of the window to send every page through the model instead: slower, but it rebuilds formulas (as LaTeX) and borderless tables.</p></details>
+        <details><summary>How much disk space does it need?</summary>
+          <p>About 0.7 GB for the app on Mac (more on Windows) plus ~6 GB for the OCR model, stored in your user folder's Hugging Face cache.</p></details>
+        <details><summary>Does it work on Intel Macs?</summary>
+          <p>No, the Mac version needs Apple Silicon (M1 or newer) and macOS 14 or later.</p></details>
+        <details><summary>How do I update?</summary>
+          <p>Download the latest version from this page and install it over the old one. The model is kept.</p></details>
+      </div>
+    </section>
+  </main>
+
+  <footer class="credits">
+    <p>OCR: <a href="https://huggingface.co/baidu/Unlimited-OCR">Unlimited-OCR</a> by Baidu (MIT) · Mac engine: <a href="https://github.com/ml-explore/mlx">MLX</a> (MIT) · PDF: <a href="https://pymupdf.readthedocs.io/">PyMuPDF</a> (AGPL-3.0) · Font: Press Start 2P (OFL)</p>
+    <p><a id="source-link" href="#">SOURCE CODE</a> · <a id="releases-link" href="#">ALL RELEASES</a></p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

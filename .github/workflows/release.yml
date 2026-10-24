@@ -1,0 +1,133 @@
+name: Build & release
+
+# Push a tag like v1.0.0 (matching svitlyachok/__init__.py) to build both apps and publish a Release.
+# Run manually from the Actions tab to build and test without releasing.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      ocr_test:
+        description: "Windows: also run a real OCR test (downloads the 6 GB model, ~15 min)"
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: v
+        run: |
+          version=$(sed -n 's/^__version__ = "\(.*\)"/\1/p' svitlyachok/__init__.py)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if [[ "$GITHUB_REF" == refs/tags/v* && "${GITHUB_REF_NAME#v}" != "$version" ]]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match __version__ $version"; exit 1
+          fi
+
+  mac:
+    needs: version
+    runs-on: macos-latest  # Apple Silicon
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-mac.txt pyinstaller==6.22.3
+          # Use the macOS 14 builds of MLX so the app runs on macOS 14 and newer.
+          python packaging/mlx_wheels.py wheels | xargs pip install --force-reinstall --no-deps
+      - name: Check every native library supports macOS 14
+        run: |
+          python - <<'EOF'
+          import pathlib, re, site, sys
+          bad = []
+          for wheel in pathlib.Path(site.getsitepackages()[0]).glob("*.dist-info/WHEEL"):
+              for major in re.findall(r"macosx_(\d+)_", wheel.read_text()):
+                  if int(major) > 14:
+                      bad.append(f"{wheel.parent.name} needs macOS {major}")
+          print("\n".join(bad) or "all wheels support macOS 14")
+          sys.exit(1 if bad else 0)
+          EOF
+      - name: Build
+        run: packaging/build-mac.sh build
+      - name: Self-test
+        run: |
+          build/dist/Svitlyachok.app/Contents/MacOS/Svitlyachok --selftest || { cat selftest.log; exit 1; }
+          cat selftest.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mac
+          path: build/Svitlyachok-macOS.dmg
+          retention-days: 14
+
+  windows:
+    needs: version
+    runs-on: windows-latest
+    timeout-minutes: 120
+    env:
+      HF_HOME: ${{ runner.temp }}\hf  # the model cache needs space; runner.temp is on the larger drive
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-win.txt pyinstaller==6.22.3
+      - name: Build
+        run: pyinstaller packaging/svitlyachok.spec --noconfirm --distpath build/dist --workpath build/work
+      - name: Self-test
+        shell: pwsh
+        run: |
+          $testArgs = @("--selftest")
+          if ("${{ github.event_name == 'push' || inputs.ocr_test }}" -eq "true") { $testArgs += "--ocr" }
+          $p = Start-Process -FilePath "build\dist\Svitlyachok\Svitlyachok.exe" -ArgumentList $testArgs -Wait -PassThru -NoNewWindow
+          Get-Content selftest.log
+          if ($p.ExitCode -ne 0) { exit 1 }
+      - name: Installer
+        shell: pwsh
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { choco install innosetup -y --no-progress }
+          & $iscc "/DAppVersion=${{ needs.version.outputs.version }}" "/DDistDir=$PWD\build\dist\Svitlyachok" packaging\windows.iss
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: build/Svitlyachok-Windows-Setup.exe
+          retention-days: 14
+
+  release:
+    needs: [version, mac, windows]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cat > notes.md <<'EOF'
+          **Download:** `Svitlyachok-macOS.dmg` (Apple Silicon, macOS 14+) or `Svitlyachok-Windows-Setup.exe` (Windows 10/11, 64-bit).
+
+          The apps are not signed by Apple or Microsoft yet, so the first launch needs one extra click:
+          - **Mac:** open the app once, then System Settings → Privacy & Security → **Open Anyway**.
+          - **Windows:** on "Windows protected your PC", click **More info** → **Run anyway**.
+
+          The first scanned page downloads the OCR model (~6 GB, once).
+          EOF
+          gh release create "$GITHUB_REF_NAME" dist/* --repo "$GITHUB_REPOSITORY" \
+            --title "Світлячок $GITHUB_REF_NAME" --notes-file notes.md

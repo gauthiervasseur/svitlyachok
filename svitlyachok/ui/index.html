@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Світлячок</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="sky" aria-hidden="true"></div>
+  <div class="crt" aria-hidden="true"></div>
+
+  <main class="cabinet">
+    <header class="marquee">
+      <div class="brand">
+        <svg class="firefly" viewBox="0 0 16 16" aria-hidden="true" shape-rendering="crispEdges">
+          <g class="wings"><rect x="2" y="3" width="3" height="1"/><rect x="11" y="3" width="3" height="1"/><rect x="1" y="4" width="5" height="1"/><rect x="10" y="4" width="5" height="1"/><rect x="1" y="5" width="5" height="1"/><rect x="10" y="5" width="5" height="1"/><rect x="2" y="6" width="3" height="1"/><rect x="11" y="6" width="3" height="1"/></g>
+          <g class="body"><rect x="4" y="0" width="1" height="1"/><rect x="11" y="0" width="1" height="1"/><rect x="5" y="1" width="1" height="1"/><rect x="10" y="1" width="1" height="1"/><rect x="6" y="2" width="4" height="1"/><rect x="6" y="3" width="4" height="1"/><rect x="6" y="4" width="4" height="1"/><rect x="6" y="5" width="4" height="1"/><rect x="6" y="6" width="4" height="1"/><rect x="6" y="7" width="4" height="1"/></g>
+          <g class="lamp"><rect x="5" y="8" width="6" height="1"/><rect x="5" y="9" width="6" height="1"/><rect x="4" y="10" width="8" height="1"/><rect x="4" y="11" width="8" height="1"/><rect x="5" y="12" width="6" height="1"/><rect x="5" y="13" width="6" height="1"/><rect x="6" y="14" width="4" height="1"/><rect x="7" y="15" width="2" height="1"/></g>
+        </svg>
+        <div>
+          <h1 class="title">СВІТЛЯЧОК</h1>
+          <p class="subtitle">DOCUMENTS <span class="arrow">▶</span> MARKDOWN</p>
+        </div>
+      </div>
+
+      <dl class="hud" aria-label="Session totals">
+        <div><dt>ENGINE</dt><dd id="engine" class="engine idle"><span class="dot"></span><span id="engine-text">STANDBY</span></dd></div>
+        <div><dt>FILES</dt><dd id="hud-files">000</dd></div>
+        <div><dt>PAGES</dt><dd id="hud-pages">0000</dd></div>
+        <div><dt>TIME</dt><dd id="hud-time">00:00.0</dd></div>
+      </dl>
+    </header>
+
+    <section id="drop" class="drop" aria-label="Add files">
+      <p class="drop-title"><span class="blink">▼</span> DROP FILES HERE <span class="blink">▼</span></p>
+      <p class="drop-types">PDF · SCANS · PHOTOS · WORD · EXCEL · POWERPOINT · TEXT</p>
+      <button id="pick" class="btn btn-primary" type="button">INSERT DOCUMENTS</button>
+      <p class="hint"><kbd id="kbd-mod">CTRL</kbd><kbd>O</kbd> TO BROWSE · DROP FOLDERS TOO</p>
+    </section>
+
+    <section id="download" class="download" hidden aria-live="polite">
+      <p class="download-title">FIRST RUN · DOWNLOADING THE OCR BRAIN</p>
+      <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="bar-fill"></div></div>
+      <p id="download-text" class="download-text">0.0 / 0.0 GB</p>
+    </section>
+
+    <section class="scores" aria-label="Files">
+      <div class="scores-head">
+        <h2>HIGH SCORES</h2>
+        <p id="queue-note" class="queue-note"></p>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th class="c-rank">#</th><th class="c-name">FILE</th><th class="c-num">PAGES</th><th>MODE</th><th class="c-num">TIME</th><th>STATUS</th><th class="c-act"><span class="sr">ACTIONS</span></th></tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+        <p id="empty" class="empty"><span class="blink">INSERT DOCUMENTS TO PLAY</span></p>
+      </div>
+    </section>
+
+    <footer class="controls">
+      <div class="left">
+        <button id="save-all" class="btn" type="button" disabled>SAVE ALL</button>
+        <button id="clear" class="btn btn-danger" type="button" disabled>CLEAR DONE</button>
+      </div>
+      <div class="right">
+        <label class="toggle" title="Send every page through the model, even digital PDF pages. Slower, better for formulas.">
+          <input id="force-ocr" type="checkbox"><span class="box" aria-hidden="true"></span>ALWAYS OCR
+        </label>
+        <button id="sound" class="btn btn-ghost" type="button" aria-pressed="true">♪ ON</button>
+        <span id="version" class="version"></span>
+      </div>
+    </footer>
+  </main>
+
+  <div id="viewer" class="viewer" hidden role="dialog" aria-modal="true" aria-labelledby="viewer-title">
+    <div class="viewer-panel">
+      <div class="viewer-head">
+        <h2 id="viewer-title">FILE.MD</h2>
+        <div>
+          <button id="viewer-save" class="btn" type="button">SAVE</button>
+          <button id="viewer-close" class="btn btn-ghost" type="button" aria-label="Close">X</button>
+        </div>
+      </div>
+      <pre id="viewer-text" class="viewer-text" tabindex="0"></pre>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
