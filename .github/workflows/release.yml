@@ -73,9 +73,10 @@ jobs:
     needs: version
     runs-on: windows-latest
     timeout-minutes: 120
-    env:
-      HF_HOME: ${{ runner.temp }}\hf  # the model cache needs space; runner.temp is on the larger drive
     steps:
+      - name: Put the model cache on the larger drive
+        shell: pwsh
+        run: echo "HF_HOME=$env:RUNNER_TEMP\hf" >> $env:GITHUB_ENV
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
