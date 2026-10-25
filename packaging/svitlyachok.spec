@@ -10,7 +10,10 @@ ROOT = Path(SPECPATH).parent
 sys.path.insert(0, str(ROOT))
 from svitlyachok import __version__  # noqa: E402
 
-IS_MAC = sys.platform == "darwin"
+import os  # noqa: E402
+
+# SVITLYACHOK_ENGINE=torch builds the Windows (PyTorch) variant on a Mac, to test its packaging locally.
+IS_MAC = sys.platform == "darwin" and os.environ.get("SVITLYACHOK_ENGINE") != "torch"
 
 datas = [
     (str(ROOT / "svitlyachok" / "ui"), "svitlyachok/ui"),
@@ -42,7 +45,8 @@ if IS_MAC:
 else:
     # Imported at runtime by the model's own code (trust_remote_code), invisible to static analysis.
     hiddenimports += ["addict", "easydict", "einops", "requests", "matplotlib.pyplot", "torchvision.transforms"]
-    hiddenimports += collect_submodules("transformers.models.llama") + collect_submodules("transformers.generation")
+    # transformers imports model and tokenizer modules by name at runtime, so bundle all of them.
+    hiddenimports += collect_submodules("transformers")
     datas += collect_data_files("transformers", include_py_files=False)
     excludes = ["mlx", "mlx_vlm", "tkinter", "IPython", "pytest", "pymupdf.layout", "onnxruntime"]
 
