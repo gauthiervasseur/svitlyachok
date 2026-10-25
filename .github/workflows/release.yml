@@ -1,10 +1,12 @@
 name: Build & release
 
 # Push a tag like v1.0.0 (matching svitlyachok/__init__.py) to build both apps and publish a Release.
-# Run manually from the Actions tab to build and test without releasing.
+# Pushes to main that touch the app build and test it without releasing; so does a manual run.
 on:
   push:
     tags: ["v*"]
+    branches: [main]
+    paths: ["svitlyachok/**", "packaging/**", "requirements-*.txt", ".github/workflows/release.yml"]
   workflow_dispatch:
     inputs:
       ocr_test:
@@ -61,8 +63,14 @@ jobs:
         run: packaging/build-mac.sh build
       - name: Self-test
         run: |
-          build/dist/Svitlyachok.app/Contents/MacOS/Svitlyachok --selftest || { cat selftest.log; exit 1; }
-          cat selftest.log
+          if build/dist/Svitlyachok.app/Contents/MacOS/Svitlyachok --selftest; then cat selftest.log; exit 0; fi
+          # Report as an annotation too: unlike job logs, annotations are readable without signing in.
+          report="$(cat selftest.log 2>/dev/null || echo 'selftest.log missing')"
+          report="$report"$'\n--- app log ---\n'"$(tail -n 60 "$HOME/Library/Application Support/Svitlyachok/svitlyachok.log" 2>/dev/null)"
+          echo "$report"
+          report="${report//'%'/'%25'}"; report="${report//$'\n'/'%0A'}"
+          echo "::error title=Mac self-test failed::${report:0:30000}"
+          exit 1
       - uses: actions/upload-artifact@v4
         with:
           name: mac
@@ -93,8 +101,19 @@ jobs:
           $testArgs = @("--selftest")
           if ("${{ github.event_name == 'push' || inputs.ocr_test }}" -eq "true") { $testArgs += "--ocr" }
           $p = Start-Process -FilePath "build\dist\Svitlyachok\Svitlyachok.exe" -ArgumentList $testArgs -Wait -PassThru -NoNewWindow
-          Get-Content selftest.log
-          if ($p.ExitCode -ne 0) { exit 1 }
+          $report = if (Test-Path selftest.log) { Get-Content selftest.log -Raw } else { "selftest.log missing" }
+          Write-Output $report
+          if ($p.ExitCode -ne 0) {
+            $appLog = Join-Path $env:LOCALAPPDATA "Svitlyachok\svitlyachok.log"
+            if (Test-Path $appLog) { $report += "`n--- app log ---`n" + ((Get-Content $appLog -Tail 60) -join "`n") }
+            $consoleLog = Join-Path $env:LOCALAPPDATA "Svitlyachok\console.log"
+            if (Test-Path $consoleLog) { $report += "`n--- console ---`n" + ((Get-Content $consoleLog -Tail 40) -join "`n") }
+            # Report as an annotation too: unlike job logs, annotations are readable without signing in.
+            $message = ($report -replace '%', '%25' -replace "`r", '' -replace "`n", '%0A')
+            if ($message.Length -gt 30000) { $message = $message.Substring(0, 30000) }
+            Write-Output "::error title=Windows self-test failed::$message"
+            exit 1
+          }
       - name: Installer
         shell: pwsh
         run: |
